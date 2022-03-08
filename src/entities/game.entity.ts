@@ -51,7 +51,7 @@ export class Game extends BaseEntity {
     num_ready: number;
 
     @Column({
-        default: true
+        nullable : true
     })
     is_dispute : boolean;
 

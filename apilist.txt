@@ -1,0 +1,70 @@
+
+
+POST /users/login : 
+    input => username :  string
+    output => new session object
+    this end point only require username to be sent in the body.
+    If the username already exist this just do login, if not then this
+    creates new User.
+    This send an X-JWT-TOKEN in the response. Save that token in the
+    header of every following request. 
+    This also sends the session object back if everything go well.
+    In future we can easily password to it.
+
+Below this line every end point require auth token.
+that is X-JWT-TOKEN it gets checked on every request by 
+requireJwtMiddleware(). So add it to your request headers.
+Also note that a session if not used automaticaly get expired
+in 1 hour.
+
+GET /users :
+    This returns all the users registere to the service.
+
+
+GET /games : 
+    this returns all the games registere in the service.
+
+POST /games : 
+    input => from_time : unix time stamp, to_time : unix time stamp
+    output => new game object
+    creates a new game, with the creater player as host.
+
+GET /games/:id : 
+    Params => id : string (game id)
+    output => game object
+    this returns the game object.
+
+
+POST /games/:id : 
+    Params => id : string (game id)
+    output => game object
+    this just add the current player to the game if game has less than 4 player
+    and the games has not started.
+
+GET /games/:id/confirm :
+    Params => id : string ( game id )
+    output => game object
+    this checks if the user is in the game or not, if yes then increases the 
+    confirm count. if the confirm count becomes equal to the total number of 
+    player then the game starts.
+
+GET /games/:id/leave : 
+    Params => id : string ( game id )
+    output => game object
+    this checks if the user is in the game if yes then the user user is removed 
+    from the game and the game becomes is_confirmed false
+
+POST /games/:id/vote : 
+    Params => id : string ( game id )
+    body => id : string ( the id of the User that the current user want to vote )
+    output => game object
+    this checks if the current user and User that the current user want to vote
+    both are in the game. if yes this increases the vote count. This also checks
+    if for any player number of votes become greater than or equal to the 3, then
+    that player is declared winner and the game is closed and is_dispute becomes
+    false.
+
+Also we have a jobRunner function that basically waits for one hour after is_confirmed 
+becomes true, then checks if the game has been finished if not then it kicks 
+every user and the games closes
+
